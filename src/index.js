@@ -55,6 +55,7 @@ class Game extends React.Component {
             }],
             xIsNext: true,
             stepNumber: 0,
+            orderStepsAsc: false,
         };
     }
 
@@ -121,6 +122,10 @@ class Game extends React.Component {
             }
 
         });
+
+        if (!this.state.orderStepsAsc) {
+            moves.reverse();
+        }
 
         return (
             <div className="game">
