@@ -55,7 +55,7 @@ class Game extends React.Component {
             }],
             xIsNext: true,
             stepNumber: 0,
-            orderStepsAsc: false,
+            orderStepsAsc: true,
         };
     }
 
@@ -137,9 +137,21 @@ class Game extends React.Component {
                 <div className="game-info">
                     <div>{ status }</div>
                     <ol>{ moves }</ol>
+                    <div>
+                        <input id="toggleOrdering" type="checkbox"
+                               value={this.state.orderStepsAsc}
+                               onClick={() => this.handleOrderingToggle()}/>
+                        <label htmlFor="toggleOrdering">Ascending order of steps</label>
+                    </div>
                 </div>
             </div>
         );
+    }
+
+    handleOrderingToggle() {
+        this.setState({
+            orderStepsAsc: !this.state.orderStepsAsc,
+        })
     }
 }
 
