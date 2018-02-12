@@ -139,8 +139,8 @@ class Game extends React.Component {
                     <ol>{ moves }</ol>
                     <div>
                         <input id="toggleOrdering" type="checkbox"
-                               value={this.state.orderStepsAsc}
-                               onClick={() => this.handleOrderingToggle()}/>
+                               checked={this.state.orderStepsAsc}
+                               onChange={() => this.handleOrderingToggle()}/>
                         <label htmlFor="toggleOrdering">Ascending order of steps</label>
                     </div>
                 </div>
