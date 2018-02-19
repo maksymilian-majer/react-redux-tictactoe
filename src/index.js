@@ -59,7 +59,10 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            history: [Array(9).fill(null)],
+            history: [{
+                squares: Array(9).fill(null),
+                selectedIndex: null
+            }],
             xIsNext: true,
             stepNumber: 0,
             orderStepsAsc: true,
