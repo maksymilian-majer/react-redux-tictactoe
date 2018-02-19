@@ -2,7 +2,10 @@ import {StepsOrder} from "./viewStates";
 import {SELECT_SQUARE, SELECT_STEP, SET_STEPS_ORDER} from "./actionTypes";
 
 const initialState = {
-    history: [Array(9).fill(null)],
+    history: [{
+        squares: Array(9).fill(null),
+        selectedIndex: null
+    }],
     xIsNext: true,
     stepNumber: 0,
     stepsOrder: StepsOrder.ASC,
@@ -23,7 +26,10 @@ function ticTacToeApp(state = initialState, action) {
             }
             squares[action.index] = this.state.xIsNext ? 'X' : 'O';
             return {
-                history: history.concat([squares]),
+                history: history.concat([{
+                    squares,
+                    selectedIndex: action.index
+                }]),
                 stepNumber: history.length,
                 xIsNext: !this.state.xIsNext,
             };
