@@ -1,12 +1,7 @@
+import {combineReducers} from 'redux'
 import {StepsOrder} from "./viewStates";
 import {SELECT_SQUARE, SELECT_STEP, SET_STEPS_ORDER} from "./actionTypes";
 
-const initialState = {
-    history: getInitialHistory(),
-    xIsNext: true,
-    stepNumber: 0,
-    stepsOrder: StepsOrder.ASC,
-};
 
 function getInitialHistory() {
     return [{
@@ -62,11 +57,21 @@ function history(state = getInitialHistory(), action) {
     }
 }
 
-function ticTacToeApp(state = initialState, action) {
+function game(state = {
+    history: getInitialHistory(),
+    xIsNext: true,
+    stepNumber: 0,
+}, action) {
     return {
         history: history(state.history, action),
         xIsNext: xIsNext(state.history, action),
         stepNumber: stepNumber(state.history, action),
-        stepsOrder: stepsOrder(state.stepsOrder, action)
-    };
+    }
 }
+
+const ticTacToeApp = combineReducers({
+    game,
+    stepsOrder
+});
+
+export default ticTacToeApp;
