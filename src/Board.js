@@ -3,41 +3,39 @@ import PropTypes from 'prop-types';
 
 import Square from "./Square";
 
-class Board extends React.Component {
-    renderSquare(i) {
+const Board = ({squares, winners, onClick}) => {
+    function renderSquare(i) {
         return (
             <Square
                 key={i}
-                value={this.props.squares[i]}
-                onClick={() => this.props.onClick(i)}
-                isWinner={this.props.winners && this.props.winners.includes(i)}
+                value={squares[i]}
+                onClick={() => onClick(i)}
+                isWinner={!!winners && winners.includes(i)}
             />
         );
     }
 
-    renderRow(i) {
+    function renderRow(i) {
         let cols = [];
         for (let col = 0; col < 3; col++) {
-            cols.push(this.renderSquare(i + col))
+            cols.push(renderSquare(i + col))
         }
         return cols;
     }
 
-    render() {
-        return this.props.squares.map((val, i) => {
-            if (i % 3 === 0) {
-                const row = i / 3;
-                return (
-                    <div key={row} className="board-row">
-                        {this.renderRow(i)}
-                    </div>
-                );
-            }
+    return squares.map((val, i) => {
+        if (i % 3 === 0) {
+            const row = i / 3;
+            return (
+                <div key={row} className="board-row">
+                    {renderRow(i)}
+                </div>
+            );
+        }
 
-            return null;
-        });
-    }
-}
+        return null;
+    });
+};
 
 Board.propTypes = {
     squares: PropTypes.array.isRequired,

@@ -1,116 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 import registerServiceWorker from './registerServiceWorker';
 
 import './index.css';
 
-import Board from './Board';
-
-const Move = ({move, desc, isSelected, jumpTo}) => {
-    if (isSelected) {
-        return (
-            <li key={move}>
-                <button onClick={() => jumpTo(move)}>
-                    <strong>{desc}</strong>
-                </button>
-            </li>
-        );
-    } else {
-        return (
-            <li key={move}>
-                <button onClick={() => jumpTo(move)}>
-                    {desc}
-                </button>
-            </li>
-        );
-    }
-};
-
-Move.propTypes = {
-    move: PropTypes.number.isRequired,
-    desc: PropTypes.string.isRequired,
-    isSelected: PropTypes.bool.isRequired,
-    jumpTo: PropTypes.func.isRequired
-};
-
-const Moves = ({history, stepNumber, jumpTo}) => {
-    function getRow(i) {
-        return Math.floor(i/3) + 1;
-    }
-
-    function getCol(i) {
-        return i % 3 + 1;
-    }
-
-    const moves = history.map((step, move) => {
-        const desc = move ?
-            'Go to move #' + move + ' (' + getRow(step.selectedIndex) + ', ' + getCol(step.selectedIndex) + ')':
-            'Go to game start';
-
-
-        return (
-            <Move move={move} desc={desc} isSelected={move === stepNumber} jumpTo={jumpTo} />
-        );
-    });
-
-    if (!this.state.orderStepsAsc) {
-        moves.reverse();
-    }
-
-    return moves;
-};
-
-Moves.propTypes = {
-    history: PropTypes.array.isRequired,
-    stepNumber: PropTypes.number.isRequired,
-    jumpTo: PropTypes.func.isRequired
-};
-
-const Game = ({
-                  history,
-                  stepNumber,
-                  squares,
-                  winners,
-                  status,
-                  orderStepsAsc,
-                  jumpTo,
-                  handleClick,
-                  handleOrderingToggle
-              }) => (
-    <div className="game">
-        <div className="game-board">
-            <Board
-                squares={squares}
-                winners={winners}
-                onClick={(i) => handleClick(i)}/>
-        </div>
-        <div className="game-info">
-            <div>{status}</div>
-            <ol>
-                <Moves history={history} stepNumber={stepNumber} jumpTo={jumpTo} />
-            </ol>
-            <div>
-                <input id="toggleOrdering" type="checkbox"
-                       checked={orderStepsAsc}
-                       onChange={() => handleOrderingToggle()}/>
-                <label htmlFor="toggleOrdering">Ascending order of steps</label>
-            </div>
-        </div>
-    </div>
-);
-
-Game.propTypes = {
-    history: PropTypes.array.isRequired,
-    stepNumber: PropTypes.number.isRequired,
-    squares: PropTypes.array.isRequired,
-    winners: PropTypes.array,
-    status: PropTypes.string.isRequired,
-    orderStepsAsc: PropTypes.bool.isRequired,
-    jumpTo: PropTypes.func.isRequired,
-    handleClick: PropTypes.func.isRequired,
-    handleOrderingToggle: PropTypes.func.isRequired
-};
+import Game from "./Game";
 
 class GameContainer extends React.Component {
     constructor(props) {
@@ -134,7 +28,7 @@ class GameContainer extends React.Component {
         });
     }
 
-    handleClick(i) {
+    handleSquareSelect(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
@@ -155,10 +49,10 @@ class GameContainer extends React.Component {
     render() {
         const history = this.state.history;
         const stepNumber = this.state.stepNumber;
-        const current = history[stepNumber];
-        const winners = calculateWinner(current.squares);
+        const current = history[stepNumber].squares;
+        const winners = calculateWinner(current);
 
-        const draw = current.squares.every(x => !!x) && !winners;
+        const draw = current.every(x => !!x) && !winners;
 
         let status;
         if (draw) {
@@ -170,54 +64,16 @@ class GameContainer extends React.Component {
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
         }
 
-        const moves = history.map((step, move) => {
-            const desc = move ?
-                'Go to move #' + move + ' (' + getRow(step.selectedIndex) + ', ' + getCol(step.selectedIndex) + ')':
-                'Go to game start';
-
-            if (move === stepNumber) {
-                return (
-                    <li key={move}>
-                        <button onClick={() => this.jumpTo(move)}>
-                            <strong>{desc}</strong>
-                        </button>
-                    </li>
-                );
-            } else {
-                return (
-                    <li key={move}>
-                        <button onClick={() => this.jumpTo(move)}>
-                            {desc}
-                        </button>
-                    </li>
-                );
-            }
-
-        });
-
-        if (!this.state.orderStepsAsc) {
-            moves.reverse();
-        }
-
         return (
-            <div className="game">
-                <div className="game-board">
-                    <Board
-                        squares={current.squares}
-                        winners={winners}
-                        onClick={(i) => this.handleClick(i)}/>
-                </div>
-                <div className="game-info">
-                    <div>{ status }</div>
-                    <ol>{ moves }</ol>
-                    <div>
-                        <input id="toggleOrdering" type="checkbox"
-                               checked={this.state.orderStepsAsc}
-                               onChange={() => this.handleOrderingToggle()}/>
-                        <label htmlFor="toggleOrdering">Ascending order of steps</label>
-                    </div>
-                </div>
-            </div>
+            <Game history={history}
+                  stepNumber={stepNumber}
+                  squares={current}
+                  winners={winners}
+                  status={status}
+                  orderStepsAsc={this.state.orderStepsAsc}
+                  jumpTo={(move) => this.jumpTo(move)}
+                  handleClick={(i) => this.handleSquareSelect(i)}
+                  handleOrderingToggle={() => this.handleOrderingToggle()} />
         );
     }
 
@@ -226,14 +82,6 @@ class GameContainer extends React.Component {
             orderStepsAsc: !this.state.orderStepsAsc,
         })
     }
-}
-
-function getRow(i) {
-    return Math.floor(i/3) + 1;
-}
-
-function getCol(i) {
-    return i % 3 + 1;
 }
 
 function calculateWinner(squares) {

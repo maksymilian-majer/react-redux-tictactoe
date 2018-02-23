@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import './Square.css'
+
 const Square = ({isWinner, value, onClick}) => {
     if (isWinner) {
         return (
@@ -20,7 +22,7 @@ const Square = ({isWinner, value, onClick}) => {
 Square.propTypes = {
     onClick: PropTypes.func.isRequired,
     isWinner: PropTypes.bool.isRequired,
-    value: PropTypes.string.isRequired
+    value: PropTypes.string
 };
 
 export default Square;
