@@ -1,61 +1,118 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import PropTypes from 'prop-types';
 import registerServiceWorker from './registerServiceWorker';
 
-function Square(props) {
-    if (props.isWinner) {
+import './index.css';
+
+import Board from './Board';
+
+const Move = ({move, desc, isSelected, jumpTo}) => {
+    if (isSelected) {
         return (
-            <button className="square winner" onClick={props.onClick}>
-                {props.value}
-            </button>
+            <li key={move}>
+                <button onClick={() => jumpTo(move)}>
+                    <strong>{desc}</strong>
+                </button>
+            </li>
         );
     } else {
         return (
-            <button className="square" onClick={props.onClick}>
-                {props.value}
-            </button>
+            <li key={move}>
+                <button onClick={() => jumpTo(move)}>
+                    {desc}
+                </button>
+            </li>
         );
     }
-}
+};
 
-class Board extends React.Component {
-    renderSquare(i) {
+Move.propTypes = {
+    move: PropTypes.number.isRequired,
+    desc: PropTypes.string.isRequired,
+    isSelected: PropTypes.bool.isRequired,
+    jumpTo: PropTypes.func.isRequired
+};
+
+const Moves = ({history, stepNumber, jumpTo}) => {
+    function getRow(i) {
+        return Math.floor(i/3) + 1;
+    }
+
+    function getCol(i) {
+        return i % 3 + 1;
+    }
+
+    const moves = history.map((step, move) => {
+        const desc = move ?
+            'Go to move #' + move + ' (' + getRow(step.selectedIndex) + ', ' + getCol(step.selectedIndex) + ')':
+            'Go to game start';
+
+
         return (
-            <Square
-                key={i}
-                value={this.props.squares[i]}
-                onClick={() => this.props.onClick(i)}
-                isWinner={this.props.winners && this.props.winners.includes(i)}
-            />
+            <Move move={move} desc={desc} isSelected={move === stepNumber} jumpTo={jumpTo} />
         );
+    });
+
+    if (!this.state.orderStepsAsc) {
+        moves.reverse();
     }
 
-    renderRow(i) {
-        let cols = [];
-        for (let col = 0; col < 3; col++) {
-            cols.push(this.renderSquare(i + col))
-        }
-        return cols;
-    }
+    return moves;
+};
 
-    render() {
-        return this.props.squares.map((val, i) => {
-            if (i % 3 === 0) {
-                const row = i / 3;
-                return (
-                    <div key={row} className="board-row">
-                        {this.renderRow(i)}
-                    </div>
-                );
-            }
+Moves.propTypes = {
+    history: PropTypes.array.isRequired,
+    stepNumber: PropTypes.number.isRequired,
+    jumpTo: PropTypes.func.isRequired
+};
 
-            return null;
-        });
-    }
-}
+const Game = ({
+                  history,
+                  stepNumber,
+                  squares,
+                  winners,
+                  status,
+                  orderStepsAsc,
+                  jumpTo,
+                  handleClick,
+                  handleOrderingToggle
+              }) => (
+    <div className="game">
+        <div className="game-board">
+            <Board
+                squares={squares}
+                winners={winners}
+                onClick={(i) => handleClick(i)}/>
+        </div>
+        <div className="game-info">
+            <div>{status}</div>
+            <ol>
+                <Moves history={history} stepNumber={stepNumber} jumpTo={jumpTo} />
+            </ol>
+            <div>
+                <input id="toggleOrdering" type="checkbox"
+                       checked={orderStepsAsc}
+                       onChange={() => handleOrderingToggle()}/>
+                <label htmlFor="toggleOrdering">Ascending order of steps</label>
+            </div>
+        </div>
+    </div>
+);
 
-class Game extends React.Component {
+Game.propTypes = {
+    history: PropTypes.array.isRequired,
+    stepNumber: PropTypes.number.isRequired,
+    squares: PropTypes.array.isRequired,
+    winners: PropTypes.array,
+    status: PropTypes.string.isRequired,
+    orderStepsAsc: PropTypes.bool.isRequired,
+    jumpTo: PropTypes.func.isRequired,
+    handleClick: PropTypes.func.isRequired,
+    handleOrderingToggle: PropTypes.func.isRequired
+};
+
+class GameContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -202,7 +259,7 @@ function calculateWinner(squares) {
 // ========================================
 
 ReactDOM.render(
-    <Game />,
+    <GameContainer />,
     document.getElementById('root')
 );
 registerServiceWorker();
