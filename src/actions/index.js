@@ -11,3 +11,8 @@ export function setStepsOrder(order) {
 export function selectStep(stepNumber) {
     return {type: SELECT_STEP, stepNumber}
 }
+
+export const StepsOrder = {
+    ASC: 'ASC',
+    DESC: 'DESC'
+};
