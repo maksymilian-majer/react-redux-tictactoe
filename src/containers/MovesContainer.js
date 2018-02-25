@@ -4,7 +4,7 @@ import {selectStep, setStepsOrder, StepsOrder} from "../actions";
 
 const mapStateToProps = (state) => ({
     history: state.history,
-    stepNumber: state.history.length,
+    stepNumber: state.history.length - 1,
     orderStepsAsc: state.stepsOrder === StepsOrder.ASC
 });
 
