@@ -1,102 +1,43 @@
-import React from "react";
+import {connect} from 'react-redux'
 import Game from '../components/Game';
+import {selectSquare, selectStep} from "../actions";
+import {calculateWinner, xIsNext} from "../services/game";
 
-class GameContainer extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            history: [{
-                squares: Array(9).fill(null),
-                selectedIndex: null
-            }],
-            xIsNext: true,
-            stepNumber: 0,
-            orderStepsAsc: true,
-        };
+const mapStateToProps = (state) => {
+    const history = state.history;
+    const stepNumber = state.history.length;
+    const current = history[stepNumber - 1];
+    const winners = calculateWinner(current);
+
+    const draw = current.every(x => !!x) && !winners;
+
+    let status;
+    if (draw) {
+        status = 'The history is draw';
+    } else if (winners) {
+        const [winner] = winners;
+        status = 'Winner: ' + winner;
+    } else {
+        status = 'Next player: ' + (xIsNext(history) ? 'X' : 'O');
     }
-
-    jumpTo(step) {
-        this.setState({
-            ...this.state,
-            stepNumber: step,
-            xIsNext: (step % 2) === 0,
-        });
+    
+    return {
+        history: history,
+        stepNumber: stepNumber,
+        squares: current,
+        winners: winners,
+        status: status
     }
+};
 
-    handleSquareSelect(i) {
-        const history = this.state.history.slice(0, this.state.stepNumber + 1);
-        const current = history[history.length - 1];
-        const squares = current.squares.slice();
-        if (calculateWinner(squares) || squares[i]) {
-            return;
-        }
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState({
-            history: history.concat([{
-                squares: squares,
-                selectedIndex: i
-            }]),
-            stepNumber: history.length,
-            xIsNext: !this.state.xIsNext,
-        });
-    }
+const mapDispatchToProps = {
+    onSelectMove: selectStep,
+    handleClick: selectSquare
+};
 
-    render() {
-        const history = this.state.history;
-        const stepNumber = this.state.stepNumber;
-        const current = history[stepNumber].squares;
-        const winners = calculateWinner(current);
-
-        const draw = current.every(x => !!x) && !winners;
-
-        let status;
-        if (draw) {
-            status = 'The game is draw';
-        } else if (winners) {
-            const [winner] = winners;
-            status = 'Winner: ' + winner;
-        } else {
-            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-        }
-
-        return (
-            <Game history={history}
-                  stepNumber={stepNumber}
-                  squares={current}
-                  winners={winners}
-                  status={status}
-                  orderStepsAsc={this.state.orderStepsAsc}
-                  jumpTo={(move) => this.jumpTo(move)}
-                  handleClick={(i) => this.handleSquareSelect(i)}
-                  handleOrderingToggle={() => this.handleOrderingToggle()}/>
-        );
-    }
-
-    handleOrderingToggle() {
-        this.setState({
-            orderStepsAsc: !this.state.orderStepsAsc,
-        })
-    }
-}
-
-function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return [a, b, c];
-        }
-    }
-    return null;
-}
+const GameContainer = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Game);
 
 export default GameContainer;

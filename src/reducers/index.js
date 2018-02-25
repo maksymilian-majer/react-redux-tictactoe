@@ -1,10 +1,10 @@
 import {combineReducers} from 'redux'
 import stepsOrder from "./stepsOrder";
-import game from "./game";
+import history from "./history";
 
 
 const ticTacToeApp = combineReducers({
-    game,
+    history,
     stepsOrder
 });
 
