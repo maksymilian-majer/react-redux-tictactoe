@@ -15,21 +15,19 @@ function history(state = getInitialHistory(), action) {
             return history;
         case SELECT_SQUARE:
             history = state.slice();
-            break;
+            const current = history[history.length - 1];
+            const squares = current.slice();
+
+            if (calculateWinner(squares) || squares[action.index]) {
+                return state;
+            }
+
+            squares[action.index] = xIsNext(history) ? 'X' : 'O';
+
+            return history.concat([squares]);
         default:
             return state;
     }
-
-    const current = history[history.length - 1];
-    const squares = current.slice();
-
-    if (calculateWinner(squares) || squares[action.index]) {
-        return state;
-    }
-
-    squares[action.index] = xIsNext(history) ? 'X' : 'O';
-
-    return history.concat([squares]);
 }
 
 export default history;
